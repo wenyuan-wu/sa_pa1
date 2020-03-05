@@ -7,8 +7,6 @@
 import sys
 import re
 
-input_file = sys.argv[1]
-
 
 def preprocess():
     """
@@ -18,7 +16,8 @@ def preprocess():
 
 
 def main():
-    pass
+    with open(sys.argv[1]) as input_file:
+        print("test")
 
 
 if __name__ == '__main__':
