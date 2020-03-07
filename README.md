@@ -19,7 +19,7 @@ Convert the similarity score into distance. The output of this step are two matr
 ## Clustering
 Group the most similar words together using two functions available in the Materials folder: hierarchical clustering and k-means. Be ready to discuss your output in class and propose potential improvements.
 
-##Specific requirements
+## Specific requirements
 Make sure that the formulas used to calculate feature weights and cosine similarity are transparent in your code. The raw text and the sets B and T should be read from a file given by the user as command line arguments when running the script. Please add any comments necessary to understand the elements of your code and provide instruction how to run it.
 
 ## Submission
