@@ -6,7 +6,10 @@
 
 import string
 from collections import defaultdict
-from simple_lemmatizer import simple_lemmatizer
+import pandas as pd
+import numpy.ma as ma
+# from test1 import hierarchical_clusters_draw
+# from simple_lemmatizer import simple_lemmatizer
 
 
 def preprocess(raw_text):
@@ -24,24 +27,222 @@ def preprocess(raw_text):
 
 
 def feature_matrix(base_list, target_list, doc_list):
-    fea_max = defaultdict(lambda: defaultdict(lambda: 0))
+    temp_dict = defaultdict(lambda: defaultdict(lambda: 0))
+    for i in target_list:
+        for j in base_list:
+            temp_dict[i][j] = 0
+
+    doc_len = len(doc_list)
+    for index, token in enumerate(doc_list):
+        print('current index: {} token: {}'.format(index, token))
+        if token in target_list:
+            window = []
+            if index-2 in range(0, doc_len):
+                window.append(doc_list[index-2])
+            if index-1 in range(0, doc_len):
+                window.append(doc_list[index-1])
+            if index+1 in range(0, doc_len):
+                window.append(doc_list[index+1])
+            if index+2 in range(0, doc_len):
+                window.append(doc_list[index+2])
+            print('current window: {}'.format(window))
+            for base in base_list:
+                if base in window:
+                    temp_dict[token][base] += 1
+    # print(temp_dict)
+    df = pd.DataFrame.from_dict(temp_dict, orient='index')
+    return df
 
 
-    pass
+def similarity_matrix(df, target_list, base_list):
+    df_sum = df.sum(axis=1).sum()
+    df["count_w"] = df.sum(axis=1)
+    df.loc["count_c"] = df.sum(axis=0)
+    df = df.astype(float)
+
+    for word in target_list:
+        for context in base_list:
+            ppmi = joint_prob(word, context, df_sum, df)
+            df[context][word] = ma.round(ppmi, decimals=2)
+
+    df = df.drop('count_c')
+    df = df.drop('count_w', axis=1)
+
+    cos_dict = defaultdict(lambda: defaultdict(lambda: 0))
+    euc_dict = defaultdict(lambda: defaultdict(lambda: 0))
+
+    for i in target_list:
+        for j in target_list:
+            x = df.loc[i, :]
+            y = df.loc[j, :]
+            cos_dict[i][j] = ma.round(cosine_similarity(x, y), decimals=3)
+
+    # print(cos_dict)
+    cos_df = pd.DataFrame.from_dict(cos_dict, orient='index')
+    print(cos_df)
+
+    for i in target_list:
+        for j in target_list:
+            x = df.loc[i, :]
+            y = df.loc[j, :]
+            euc_dict[i][j] = ma.round(euclidean_distance(x, y), decimals=3)
+
+    # print(cos_dict)
+    euc_df = pd.DataFrame.from_dict(euc_dict, orient='index')
+    print(euc_df)
 
 
-def similarity_matrix():
-    pass
+def joint_prob(target, base, sum_c, df):
+    prob_t_b = df[base][target] / sum_c
+
+    prob_t = df['count_w'][target] / sum_c
+    prob_c = df[base]['count_c'] / sum_c
+    result = ma.log2((prob_t_b/(prob_t * prob_c)))
+    if result > 0:
+        return ma.round(result, decimals=4)
+    else:
+        return 0
+
+
+def euclidean_distance(x, y):
+    return ma.sqrt(ma.sum((x - y) ** 2))
+
+
+def cosine_similarity(x, y):
+    return ma.dot(x, y) / (ma.sqrt(ma.dot(x, x)) * ma.sqrt(ma.dot(y, y)))
+
+
+from collections import defaultdict
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+
+
+def hierarchical_clusters_draw(feature_matrix, target_words, max_d=0.5,
+                               output_filename=None,
+                               figheight=50, figwidth=20):
+    """2d plot of 'feature_matrix' using hierarhical_clusters,
+       with the words labeled by 'target_words'.
+
+    Parameters
+    ----------
+    feature_matrix : 2d np.array,
+    shape=(n_samples, n_features)
+    (In our case n_samples is the target words)
+    (Feature matrix is not the same as similarity/distance matrix!)
+
+    target_words : list of str
+        Names of the target words.
+
+    max_d: float (default: 0.5)
+        A threshold to apply when forming flat clusters.
+        (Play around with this parameter.)
+
+    output_filename : str (default: None)
+        If not None, then the output image is written to this location.
+        The filename suffix determines the image type. If None, then
+        'plt.show()' is called.
+
+    figheight : int (default: 40)
+        Height in display units of the output.
+
+    figwidth : int (default: 20)
+        Width in display units of the output.
+    """
+
+    Z_spat = linkage(feature_matrix, 'complete', 'cosine')
+    # You can try out with different linkage function here:
+    # 'single','complete','average'
+
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    fig.set_figheight(50)
+    fig.set_figwidth(20)
+    plt.title('Hierarchical Clustering Dendrogram', fontsize=20)
+    plt.ylabel('Target words', fontsize=18)
+    plt.xlabel('Distance', fontsize=18)
+    dendrogram(
+        Z_spat,
+        leaf_font_size=17.,
+        labels=target_words,
+        orientation='right'
+    )
+
+    plt.axvline(x=max_d, color='k', linestyle='--')
+    # This drows a vertical number,
+    # choose the value where you think clusters should be cut
+
+    if output_filename:
+        plt.savefig(output_filename, bbox_inches='tight')
+        # bbox_inches='tight' - to make margins minimal
+    else:
+        plt.show()
+
+
+def pca_plot(feature_matrix, target_words, output_filename=None, title="PCA decomposition"):
+    """Plots first and second components of PCA decomposition for vectors in 'feature_matrix'.
+
+        Parameters
+        ----------
+        feature_matrix : 2d np.array,
+        shape=(n_samples, n_features)
+        (In our case n_samples is the target words)
+        (Feature matrix is not the same as similarity/distance matrix!)
+
+        target_words : list of str
+        Names of the target words.
+
+        output_filename : str (default: None)
+        If not None, then the output image is written to this location.
+        The filename suffix determines the image type. If None, then
+        'plt.show()' is called.
+
+        title : str (default: "PCA decomposition")
+        Title of the output image
+        """
+    pca = PCA(n_components=2)
+    pca_result = pca.fit_transform(feature_matrix)
+    x = []
+    y = []
+    for value in pca_result:
+        x.append(value[0])
+        y.append(value[1])
+
+    plt.figure(figsize=(16, 16))
+    for i in range(len(x)):
+        plt.scatter(x[i], y[i])
+        plt.annotate(target_words[i],
+                     xy=(x[i], y[i]),
+                     xytext=(5, 2),
+                     textcoords='offset points',
+                     ha='right',
+                     va='bottom')
+    plt.title('Hierarchical Clustering Dendrogram', fontsize=20)
+
+    if output_filename:
+        plt.savefig(output_filename)
+    else:
+        plt.show()
+
+    print('PCA done!')
 
 
 def main():
-    raw_text = open('1984_test.txt', 'r', encoding='utf-8').readlines()
+    raw_text = open('1984.txt', 'r', encoding='utf-8').readlines()
     base = open('B.txt', 'r', encoding='utf-8').readlines()
     target = open('T.txt', 'r', encoding='utf-8').readlines()
     doc_list = preprocess(raw_text)
     base_list = preprocess(base)
     target_list = preprocess(target)
-
+    df = feature_matrix(base_list, target_list, doc_list)
+    similarity_matrix(df, target_list, base_list)
+    df = df.drop('count_c')
+    df = df.drop('count_w', axis=1)
+    arr = df.to_numpy()
+    print(arr.shape)
+    hierarchical_clusters_draw(feature_matrix=arr, target_words=target_list)
+    pca_plot(arr, target_list)
 
 
 if __name__ == '__main__':
