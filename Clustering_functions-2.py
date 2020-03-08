@@ -6,14 +6,17 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
 # ### Clustering with python
-# Here are some functions which can help you to print and visualize your clusters with python. We consider two algorithms: hierarchical clustering and k-means. Feel free to modify the functions and play with the default parameters.
+# Here are some functions which can help you to print and visualize your clusters with python.
+# We consider two algorithms: hierarchical clustering and k-means.
+# Feel free to modify the functions and play with the default parameters.
 # Here are also some good tutorials for clustering with python: 
 # 
 # http://brandonrose.org/clustering
 # 
 # http://blog.nextgenetics.net/?e=44
 # 
-# If you tuckle word similarity rather then word clustering or word sense disambiguation, then you would you could use the follwong source to check how well your vectors perform on word simiparity sets:
+# If you tuckle word similarity rather then word clustering or word sense disambiguation,
+# then you would you could use the follwong source to check how well your vectors perform on word simiparity sets:
 # 
 # http://wordvectors.org/demo.php
 #
@@ -22,6 +25,7 @@ from sklearn.decomposition import PCA
 #######################################################################
 # Print dendrogram for hierarchical clusters
 #######################################################################
+
 
 def hierarchical_clusters_draw(feature_matrix,target_words,max_d=0.5,
                                output_filename=None, 
@@ -115,12 +119,12 @@ def hierarchical_clusters_print(feature_matrix,target_words,max_d=0.5):
     
     # Printing clusters
     for ind in range(1, num_clusters+1):
-        print "Cluster %d words:" % ind
+        print("Cluster %d words:" % ind)
 
         for i,w in enumerate(target_words):
             if clusters[i] == ind:
-                print ' %s' % w
-        print #add whitespace
+                print(' %s' % w)
+        print() #add whitespace
 
 
 #######################################################################
@@ -163,11 +167,11 @@ def kmeans_clusters_print(feature_matrix, target_words,
     
     # Printing clusters
     for i in range(num_clusters):
-        print "Cluster %d words:" % (i+1)
+        print("Cluster %d words:" % (i+1))
     
         for w in cluster_to_words[i]:
-            print ' %s' % w
-        print #add whitespace
+            print(' %s' % w)
+        print() #add whitespace
 
 def pca_plot(feature_matrix, target_words, output_filename=None, title = "PCA decomposition"):
     """Plots first and second components of PCA decomposition for vectors in 'feature_matrix'.
@@ -214,5 +218,5 @@ def pca_plot(feature_matrix, target_words, output_filename=None, title = "PCA de
     else:
         plt.show()
                  
-    print 'PCA done!'
+    print('PCA done!')
     
