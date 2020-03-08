@@ -5,6 +5,7 @@
 # Additional Info:
 
 import string
+from collections import defaultdict
 from simple_lemmatizer import simple_lemmatizer
 
 
@@ -23,6 +24,9 @@ def preprocess(raw_text):
 
 
 def feature_matrix(base_list, target_list, doc_list):
+    fea_max = defaultdict(lambda: defaultdict(lambda: 0))
+
+
     pass
 
 
@@ -37,6 +41,7 @@ def main():
     doc_list = preprocess(raw_text)
     base_list = preprocess(base)
     target_list = preprocess(target)
+
 
 
 if __name__ == '__main__':
