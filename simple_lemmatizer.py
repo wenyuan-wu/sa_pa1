@@ -15,11 +15,11 @@ def simple_lemmatizer(word: str) -> str:
 
     Parameters
     ----------
-    word
+    word: string
 
     Returns
     -------
-
+    token: string
     """
     lemma = nlp(word)[0].lemma_
     if lemma != '-PRON-':
