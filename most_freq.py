@@ -2,6 +2,11 @@ from similarity import preprocess
 from collections import Counter
 import sys
 
+# ###
+# This script is to output most n frequent words from a text
+# usage:
+# python3 most_freq.py [input_file] [number_of_n]
+
 file_name = sys.argv[1]
 most_com = int(sys.argv[2])
 

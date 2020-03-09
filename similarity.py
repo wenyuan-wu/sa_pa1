@@ -190,25 +190,3 @@ def euclidean_distance(x: pd.Series, y: pd.Series) -> float:
      A float number
      """
     return ma.sqrt(ma.sum((x - y) ** 2))
-
-
-def main():
-    raw_text = open('shakespeare.txt', 'r', encoding='utf-8')
-    base = open('B.txt', 'r', encoding='utf-8')
-    target = open('T.txt', 'r', encoding='utf-8')
-    doc_list = preprocess(raw_text)
-    base_list = preprocess(base)
-    target_list = preprocess(target)
-    df = feature_matrix(base_list, target_list, doc_list)
-    print(similarity_matrix(df, target_list))
-    print(distance_matrix(df, target_list))
-
-    arr = df.to_numpy()
-    hierarchical_clusters_draw(arr, target_list)
-    hierarchical_clusters_print(arr, target_list)
-    kmeans_clusters_print(arr, target_list)
-    pca_plot(arr, target_list)
-
-
-if __name__ == '__main__':
-    main()

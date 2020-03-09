@@ -7,7 +7,11 @@
 import argparse
 import similarity
 import helper_functions
-import pandas
+
+# ### Distributional vectors and similarity
+# This is the main script to run this python program.
+# To get help, run this in command line:
+# python3 clustering.py -h
 
 
 def get_argument_parser() -> argparse.ArgumentParser:
