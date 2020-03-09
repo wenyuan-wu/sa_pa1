@@ -229,7 +229,7 @@ def pca_plot(feature_matrix, target_words, output_filename=None, title="PCA deco
 
 
 def main():
-    raw_text = open('1984.txt', 'r', encoding='utf-8').readlines()
+    raw_text = open('shakespeare_10000.txt', 'r', encoding='utf-8').readlines()
     base = open('B.txt', 'r', encoding='utf-8').readlines()
     target = open('T.txt', 'r', encoding='utf-8').readlines()
     doc_list = preprocess(raw_text)
