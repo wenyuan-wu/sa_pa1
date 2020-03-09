@@ -12,6 +12,8 @@ import helper_functions
 # This is the main script to run this python program.
 # To get help, run this in command line:
 # python3 clustering.py -h
+# refer to GitHub repository for more infomation:
+# https://github.com/wenyuan-wu/sa_pa1
 
 
 def get_argument_parser() -> argparse.ArgumentParser:
