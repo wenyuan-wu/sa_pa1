@@ -76,7 +76,7 @@ def feature_matrix(base_list: List, target_list: List, doc_list: List) -> pd.Dat
             # print('current window: {}'.format(window))
             for base in base_list:
                 if base in window:
-                    temp_dict[token][base] += 1
+                    temp_dict[token][base] += window.count(base)
     df = pd.DataFrame.from_dict(temp_dict, orient='index')
     df_sum = df.sum(axis=1).sum()
     df["count_w"] = df.sum(axis=1)
@@ -189,4 +189,4 @@ def euclidean_distance(x: pd.Series, y: pd.Series) -> float:
      -------
      A float number
      """
-    return ma.sqrt(ma.sum((x - y) ** 2))
+    return 1 / cosine_similarity(x, y)
